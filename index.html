@@ -2,72 +2,80 @@
 <html lang="uk">
   <head>
     <meta charset="UTF-8" />
-     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-     <title> Інтерактивний каталог | Проєкт Павленко І.А.</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Інтерактивний каталог | Проєкт Павленко І.А.</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet"/>
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="style.css" />
   </head>
 
   <body>
     <header class="app-header">
-  <div class="header-inner">
-    <div class="app-bar">
-      <div class="app-bar-left">
-        <span class="app-logo-dot"></span>
+      <div class="header-inner">
+        <div class="app-bar">
+          <div class="app-bar-left">
+            <span class="app-logo-dot"></span>
 
-        <div class="app-title-group">
-          <h1>Інтерактивний каталог</h1>
-          <p> який дозволяє шукати, сортувати та переглядати актуальні дані про книги з Google Books</p>
+            <div class="app-title-group">
+              <h1>Інтерактивний каталог</h1>
+              <p>
+                який дозволяє шукати, сортувати та переглядати актуальні дані
+                про книги з Google Books
+              </p>
+            </div>
+          </div>
+
+          <nav class="main-nav">
+            <a href="#home">Головна</a>
+            <a href="#about">Блог</a>
+            <a href="#contact">Контакти</a>
+          </nav>
+        </div>
+        <div class="filters-card">
+          <div class="controls-container">
+            <select id="episodeSelect">
+              <option value="-1">Оберіть книгу</option>
+            </select>
+
+            <select id="sortSelect">
+              <option value="none">Сортувати за...</option>
+              <option value="title">Назвою (А–Я)</option>
+              <option value="author">Автором (А–Я)</option>
+              <option value="year_desc">Роком (Новіші)</option>
+              <option value="year_asc">Роком (Старіші)</option>
+            </select>
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Введіть назву книги, автора або ISBN..."
+            />
+
+            <button id="resetSearchButton">Скинути</button>
+            <div id="searchCount"></div>
+            <button id="themeToggle" class="theme-toggle" type="button">
+              🌙 Тема
+            </button>
+          </div>
         </div>
       </div>
-
-      <nav class="main-nav">
-        <a href="#home">Головна</a>
-        <a href="#about">Блог</a>
-        <a href="#contact">Контакти</a>
-      </nav>
-    </div>
-    <div class="filters-card">
-      <div class="controls-container">
-        <select id="episodeSelect">
-          <option value="-1">Оберіть книгу</option>
-        </select>
-
-        <select id="sortSelect">
-          <option value="none">Сортувати за...</option>
-          <option value="title">Назвою (А–Я)</option>
-          <option value="author">Автором (А–Я)</option>
-          <option value="year_desc">Роком (Новіші)</option>
-          <option value="year_asc">Роком (Старіші)</option>
-        </select>
-        <input
-          type="text"
-          id="searchInput"
-          placeholder="Введіть назву книги, автора або ISBN..."/>
-
-        <button id="resetSearchButton">Скинути</button>
-         <div id="searchCount"></div>
-        <button id="themeToggle" class="theme-toggle" type="button">🌙 Тема</button>
-      </div>
-    </div>
-  </div>
-</header>
- <main id="home" class="container">
-   <div id="root"></div>
+    </header>
+    <main id="home" class="container">
+      <div id="root"></div>
     </main>
-     <section id="about" class="blog-section">
+    <section id="about" class="blog-section">
       <div class="blog-inner">
         <h2>Наш блог</h2>
         <p class="blog-subtitle">
           Ділимося думками про книги, навчання та натхнення.
         </p>
-         <div class="blog-grid">
+        <div class="blog-grid">
           <article class="blog-card">
             <h3>Як обрати книгу для саморозвитку</h3>
             <p>
-              Короткий гайд, як шукати книжки, які реально допомагають рухатися вперед, а не просто
-              займають місце на полиці.
+              Короткий гайд, як шукати книжки, які реально допомагають рухатися
+              вперед, а не просто займають місце на полиці.
             </p>
             <span class="blog-meta">Тег: Самоосвіта</span>
           </article>
@@ -75,7 +83,8 @@
           <article class="blog-card">
             <h3>Чому варто читати українською</h3>
             <p>
-                Про мову, ідентичність та відчуття, коли впізнаєш себе у текстах українських авторів.
+              Про мову, ідентичність та відчуття, коли впізнаєш себе у текстах
+              українських авторів.
             </p>
             <span class="blog-meta">Тег: Українська література</span>
           </article>
@@ -83,14 +92,67 @@
           <article class="blog-card">
             <h3>5 книжок, з яких варто почати ІТ-шнику</h3>
             <p>
-              Підбірка для тих, хто хоче поєднати технічні знання з софт-скілами та критичним
-              мисленням.
+              Підбірка для тих, хто хоче поєднати технічні знання з софт-скілами
+              та критичним мисленням.
             </p>
             <span class="blog-meta">Тег: IT & книги</span>
           </article>
         </div>
       </div>
     </section>
+
+   <section class="top-books-section">
+  <div class="top-books-inner">
+    <h2>
+      Авторська добірка книг, які ми рекомендуємо додати до свого списку читання.
+    </h2>
+
+    <div class="top-books-table-wrapper">
+      <table class="top-books-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Назва книги</th>
+            <th>Автор</th>
+            <th>Жанр</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>«1984»</td>
+            <td>Джордж Орвелл</td>
+            <td>Антиутопія</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>«Гаррі Поттер і філософський камінь»</td>
+            <td>Дж. К. Ролінґ</td>
+            <td>Фентезі</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>«Гаррі Поттер»</td>
+            <td>Джоан Роулінг</td>
+            <td>Фентезі</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>«Тигролови»</td>
+            <td>Іван Багряний</td>
+            <td>Пригодницький роман</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>«Сто років самотності»</td>
+            <td>Ґабріель Ґарсія Маркес</td>
+            <td>Магічний реалізм</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
     <footer class="app-footer" id="contact">
       <div class="footer-content-wrapper">
@@ -103,26 +165,24 @@
           </p>
 
           <div class="social-links">
-  <a href="https://www.linkedin.com/in/iryna-pavlenko-106702192/" 
-     target="_blank" 
-     class="social-icon" 
-     title="LinkedIn"
-     aria-label="LinkedIn">
-      <svg viewBox="0 0 24 24" fill="currentColor">
-        <path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.23 23.5h4.55V7.98H.23V23.5zM7.98 7.98v15.52h4.55v-8.11c0-4.28 5.52-4.63 5.52 0v8.11H22.6V14.5c0-7.43-8.47-7.15-10.07-3.5V7.98H7.98z"/>
-      </svg>
-  </a>
+            <a
+              href="https://www.linkedin.com/in/iryna-pavlenko-106702192/"
+              target="_blank"
+              class="social-icon"
+              title="LinkedIn"
+              aria-label="LinkedIn"
+            >
+              <img src="images/icon1.png" alt="LinkedIn" class="social-img" />
+            </a>
 
-  <a href="https://www.facebook.com/irenmetal?locale=ru_RU"
-     target="_blank"
-     class="social-icon"
-     title="Facebook"
-     aria-label="Facebook">
-      <svg viewBox="0 0 24 24" fill="currentColor">
-        <path d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2v-3h2v-2.3c0-2 1.2-3.1 3-3.1.9 0 1.8.1 1.8.1v2h-1c-1 0-1.3.6-1.3 1.2V12h2.3l-.4 3h-1.9v7A10 10 0 0 0 22 12z"/>
-      </svg>
-  </a>
-</div>
+            <a href="https://www.facebook.com/irenmetal?locale=ru_RU"
+              target="_blank"
+              class="social-icon"
+              title="Facebook"
+              aria-label="Facebook">
+              <img src="images/icon2.png" alt="LinkedIn" class="social-img" />
+            </a>
+          </div>
         </div>
 
         <div class="footer-form-wrapper">
@@ -166,7 +226,8 @@
             id="modalImage"
             class="modal-image"
             src=""
-            alt="Обкладинка книги"/>
+            alt="Обкладинка книги"
+          />
 
           <div class="modal-text">
             <h2 id="modalTitle"></h2>
