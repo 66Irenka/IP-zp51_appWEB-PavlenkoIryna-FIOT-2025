@@ -1,11 +1,123 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <p>Другий репозиторій готовий</p>
-</body>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Бібліотека Книг | Проєкт Павленко І.А.</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <header class="app-header">
+      <div class="header-inner">
+        <div class="header-content">
+          <h1>Бібліотека Книг</h1>
+          <p>
+            Інтерактивний каталог, який дозволяє шукати, сортувати та
+            переглядати актуальні дані про книги з Google Books
+          </p>
+        </div>
+
+        <nav class="main-nav">
+          <a href="#home">Головна</a>
+          <a href="#about">Блог</a>
+          <a href="#contact">Контакти</a>
+        </nav>
+
+        <div class="controls-container">
+          <select id="episodeSelect" onchange="handleSelectChange()">
+            <option value="-1">Оберіть книгу</option>
+          </select>
+
+          <select id="sortSelect" onchange="handleSort()">
+            <option value="none">Сортувати за...</option>
+            <option value="title">Назвою (А–Я)</option>
+            <option value="author">Автором (А–Я)</option>
+            <option value="year_desc">Роком (Новіші)</option>
+            <option value="year_asc">Роком (Старіші)</option>
+          </select>
+
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Введіть назву книги, автора або ISBN..."
+            oninput="handleSearch(event)"
+          />
+
+          <button id="resetSearchButton" onclick="handleReset()">
+            Скинути
+          </button>
+
+          <div id="searchCount"></div>
+        </div>
+      </div>
+    </header>
+
+    <main id="root" class="container"></main>
+
+    <footer class="app-footer" id="contact">
+      <div class="footer-content-wrapper">
+        <div class="footer-contact">
+          <h4>Контакти</h4>
+          <p>м. Вінниця</p>
+          <p>
+            Телефон:
+            <a href="tel:+380988375047">+38 (098) 837 50 47</a>
+          </p>
+
+          <div class="social-links">
+            <a
+              href="https://www.linkedin.com/in/iryna-pavlenko-106702192/"
+              target="_blank"
+              >LinkedIn</a
+            >
+            <a
+              href="https://www.facebook.com/irenmetal?locale=ru_RU"
+              target="_blank"
+              >Facebook</a
+            >
+          </div>
+        </div>
+
+        <div class="footer-form-wrapper">
+          <form action="/submit-feedback" method="POST" class="feedback-form">
+            <h4>Залишити відгук</h4>
+
+            <input
+              type="email"
+              id="feedbackEmail"
+              name="email"
+              placeholder="Ваш Email (необов'язково)"
+              class="footer-input"
+            />
+
+            <textarea
+              id="feedbackMessage"
+              name="message"
+              placeholder="Ваш коментар про бібліотеку..."
+              required
+              class="footer-textarea"
+            ></textarea>
+
+            <button type="submit" class="footer-button">Надіслати</button>
+          </form>
+        </div>
+      </div>
+
+      <p class="copyright-info">&copy; 2025 Павленко І.А.</p>
+      <p class="data-source">
+        Дані надано The Google Books API. Всі права захищено
+      </p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
 </html>
+
+    
