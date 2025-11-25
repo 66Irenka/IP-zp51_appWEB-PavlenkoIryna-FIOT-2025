@@ -1,5 +1,5 @@
 /* ===================================== */
-/* 0. КОЛІРНІ ЗМІННІ ТЕМИ                */
+/*  КОЛІРНІ ЗМІННІ ТЕМИ                */
 /* ===================================== */
 
 :root {
@@ -128,7 +128,7 @@ body {
 
 .header-inner {
   width: 100%;
-  max-width: min(100%, 1100px);
+  max-width: min(100%, 1400px);
   margin: 0 auto;
   padding-left: clamp(10px, 3vw, 40px);
   padding-right: clamp(10px, 3vw, 40px);
@@ -283,7 +283,7 @@ body {
   display: grid;
   grid-template-columns: 1fr;
   padding: 20px clamp(10px, 3vw, 40px);
-  max-width: min(100%, 1100px);
+  max-width: min(100%, 1400px);
   margin: 0 auto;
 }
 
@@ -318,15 +318,16 @@ body {
 }
 
 .episode-title {
-  font-size: 1.4em;
+  font-size: 1.2rem;
+  line-height: 1.3;
   color: var(--color-text-primary);
   text-align: center;
-  margin: 0;
-  min-height: 2.8em;
+  margin: 0 0 8px;
   display: -webkit-box;
-  --webkit-line-clamp: 2;
+  --webkit-line-clamp: 3;         
   --webkit-box-orient: vertical;
   overflow: hidden;
+  height: calc(1.2rem * 1.3 * 3);  
 }
 
 .episode-image {
@@ -436,7 +437,7 @@ body {
   background-color: var(--color-bg-container);
   color: var(--color-text-secondary);
   text-align: center;
-  padding: 30px 20px 15px;
+  padding: 30px 0 15px;  
   margin-top: 30px;
   border-top: 1px solid var(--color-border-subtle);
   font-size: 0.85em;
@@ -452,15 +453,18 @@ body {
   justify-content: space-between;
   align-items: flex-start;
   gap: 40px;
-  max-width: 1000px;
+  max-width: 1400px;          
+  width: 100%;              
   margin: 0 auto 30px;
   text-align: left;
+  padding: 0 20px;            
 }
 
 .footer-contact {
   flex: 1;
-  min-width: 260px;
-  max-width: 320px;
+  padding: 70px 20px 15px;
+  min-width: 360px;
+  max-width: 420px;
 }
 
 .footer-contact h4 {
@@ -491,72 +495,102 @@ body {
 }
 
 .footer-form-wrapper {
-  flex: 1.2;
-  min-width: 300px;
-  max-width: 460px;
+  flex: 1;
+  min-width: 320px;
+  max-width: 600px;
+  width: 100%;
 }
 
 .feedback-form {
   width: 100%;
   padding: 20px;
   border-radius: 10px;
-  background-color: var(--color-bg-main);
-  box-shadow: 0 0 15px rgba(0, 173, 181, 0.2);
-  text-align: left;
+  background-color: var(--color-bg-card);
+  box-shadow: 0 0 15px rgba(0, 173, 181, 0.15);
   display: flex;
   flex-direction: column;
-  height: auto;
+  gap: 14px;
 }
+
 
 .feedback-form h4 {
   color: var(--color-text-primary);
-  margin-bottom: 15px;
-  font-size: 1.1em;
+  margin: 0 0 4px;
+  font-size: 1.05rem;
 }
 
-.form-row {
-  margin-bottom: 10px;
+.form-field {
+  position: relative;
+  width: 100%;
 }
 
 .footer-input,
 .footer-textarea {
   width: 100%;
-  padding: 10px;
-  border: 1px solid var(--color-border-subtle);
+  padding: 16px 12px 10px;         
   border-radius: 6px;
-  background-color: #333333;
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--color-bg-container);
   color: var(--color-text-primary);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.footer-textarea {
+  min-height: 90px;
+  max-height: 260px;
+  resize: vertical;
+}
+
+
+.floating-label {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0 4px;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-card);
+  pointer-events: none;
+  transition: transform 0.2s ease, font-size 0.2s ease, color 0.2s ease,
+    top 0.2s ease, background-color 0.2s ease;
+}
+
+.footer-textarea + .floating-label {
+  top: 18px;
 }
 
 .footer-input:focus,
 .footer-textarea:focus {
-  outline: none;
   border-color: var(--color-accent);
-  box-shadow: 0 0 5px var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
 }
 
-.footer-input {
-  margin-bottom: 10px;
-}
-
-.footer-textarea {
-  resize: vertical;
-  min-height: 80px;
-  margin-bottom: 15px;
+.footer-input:focus + .floating-label,
+.footer-input:not(:placeholder-shown) + .floating-label,
+.footer-textarea:focus + .floating-label,
+.footer-textarea:not(:placeholder-shown) + .floating-label {
+  top: 4px;
+  transform: translateY(0);
+  font-size: 0.75rem;
+  color: var(--color-accent);
 }
 
 .footer-button {
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 0.95rem;
   width: 100%;
-  padding: 10px 18px;
-  cursor: pointer;
   background-color: var(--color-accent);
   color: var(--color-bg-main);
   border: none;
-  border-radius: 4px;
-  font-weight: bold;
+  cursor: pointer;
+  font-weight: 600;
   text-transform: uppercase;
-  transition: background-color 0.2s, transform 0.1s;
+  letter-spacing: 0.04em;
+  transition: background-color 0.2s, transform 0.1s, box-shadow 0.1s;
   box-shadow: 0 4px 0 #008c99;
 }
 
@@ -566,7 +600,7 @@ body {
 }
 
 .footer-button:active {
-  transform: translateY(3px);
+  transform: translateY(2px);
   box-shadow: 0 1px 0 #008c99;
 }
 
@@ -674,7 +708,7 @@ body {
 }
 
 .blog-inner {
-  max-width: min(100%, 1100px);
+  max-width: min(100%, 1400px);
   margin: 0 auto;
 }
 

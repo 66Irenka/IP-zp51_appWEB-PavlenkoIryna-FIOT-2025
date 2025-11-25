@@ -107,7 +107,7 @@ function displayBook(book) {
 
   let readMoreButton = "";
   if (volumeInfo.infoLink) {
-    readMoreButton = `<a href="${volumeInfo.infoLink}" target="_blank" class="read-more-link">Детальніше...</a>`;
+    readMoreButton = `<a href="${volumeInfo.infoLink}" target="_blank" class="read-more-link">Купити...</a>`;
   }
 
   const placeholderUrl =
@@ -365,7 +365,7 @@ function enhanceBookCards() {
 
     const detailsBtn = document.createElement("button");
     detailsBtn.className = "card-button card-button--primary";
-    detailsBtn.textContent = "Детальніше";
+    detailsBtn.textContent = "Читати більше...";
     detailsBtn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
