@@ -1008,6 +1008,7 @@ body.light-theme .social-icon:hover {
   font-size: 1.8rem;
   margin-bottom: 8px;
   color: var(--color-text-primary);
+   text-align: center;
 }
 
 .gallery-subtitle {
@@ -1021,10 +1022,11 @@ body.light-theme .social-icon:hover {
   flex-wrap: nowrap;
   gap: 16px;
   overflow-x: auto;
- padding: 0 40px 20px;      
+  padding: 0 40px 20px;      
   position: relative;   
   justify-content: center;     
 }
+
 
 .gallery-grid::after {
   content: "";
@@ -1035,8 +1037,8 @@ body.light-theme .social-icon:hover {
   height: 6px;
   background: linear-gradient(
     to bottom,
-    rgba(20, 20, 20, 0.9),
-    rgba(0, 0, 0, 1)
+    rgba(117, 117, 117, 0.9),
+    rgb(150, 151, 151)
   );
   border-radius: 4px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
