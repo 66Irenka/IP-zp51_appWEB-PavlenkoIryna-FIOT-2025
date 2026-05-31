@@ -4,13 +4,10 @@ const MAX_DESCRIPTION_LENGTH = 300;
 
 let allBooksData = [];
 
-/* ==========================
-   1. ЗАВАНТАЖЕННЯ КНИГ
-   ========================== */
 
 async function fetchBooks(query) {
   const safeQuery = encodeURIComponent(query.trim());
-  const API_URL = `https://www.googleapis.com/books/v1/volumes?q=${safeQuery}&maxResults=${MAX_RESULTS}&langRestrict=uk`;
+  const API_URL = `https://openlibrary.org/search.json?q=${safeQuery}&limit=20&fields=key,title,author_name,first_publish_year,cover_i,subtitle`;
 
   const rootElem = document.getElementById("root");
   rootElem.innerHTML =
@@ -18,22 +15,41 @@ async function fetchBooks(query) {
 
   try {
     const response = await fetch(API_URL);
+
     if (!response.ok) {
       throw new Error(`Помилка HTTP: статус ${response.status}.`);
     }
+
     const data = await response.json();
 
-    if (data.items) {
-      return data.items.filter(
-        (book) =>
-          book.volumeInfo &&
-          book.volumeInfo.title &&
-          (book.volumeInfo.description || book.volumeInfo.subtitle)
-      );
-    } else {
+    if (!data.docs || data.docs.length === 0) {
       rootElem.innerHTML = `<p style="color: var(--color-text-secondary); text-align: center; grid-column: 1 / -1;">За запитом "${query}" нічого не знайдено.</p>`;
       return [];
     }
+
+    return data.docs.map((book) => ({
+      id: book.key,
+      volumeInfo: {
+        title: book.title || "Назва відсутня",
+        subtitle: book.subtitle || "",
+        authors: book.author_name || ["Автор невідомий"],
+        description: book.first_publish_year
+          ? `Рік першої публікації: ${book.first_publish_year}`
+          : "Опис відсутній",
+        publishedDate: book.first_publish_year
+          ? String(book.first_publish_year)
+          : "",
+        infoLink: `https://openlibrary.org${book.key}`,
+        imageLinks: {
+          thumbnail: book.cover_i
+            ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
+            : "https://via.placeholder.com/128x192?text=No+Cover",
+          smallThumbnail: book.cover_i
+            ? `https://covers.openlibrary.org/b/id/${book.cover_i}-S.jpg`
+            : "https://via.placeholder.com/128x192?text=No+Cover",
+        },
+      },
+    }));
   } catch (error) {
     console.error("Помилка завантаження книг:", error);
     rootElem.innerHTML = `<p style="color: #ff6b6b; text-align: center; grid-column: 1 / -1;">Помилка завантаження даних: ${error.message}</p>`;
@@ -106,11 +122,6 @@ function displayBook(book) {
     volumeInfo.description || volumeInfo.subtitle || "";
   const overview = descriptionSource;
 
-  let readMoreButton = "";
-  if (volumeInfo.infoLink) {
-    readMoreButton = `<a href="${volumeInfo.infoLink}" target="_blank" class="read-more-link">Купити...</a>`;
-  }
-
   const placeholderUrl =
     "https://via.placeholder.com/128x192?text=No+Cover";
   const imageUrl = volumeInfo.imageLinks
@@ -126,18 +137,17 @@ function displayBook(book) {
     <a href="${volumeInfo.infoLink}" target="_blank" class="book-link-wrapper">
         <h3 class="episode-title">${title}</h3>
     </a>
-    
+
     <img class="episode-image" src="${imageUrl}" alt="Обкладинка книги ${title}">
-    
+
     <p class="episode-authors">Автор(и): ${authors}</p>
-    
+
     <div class="description-container">
-        <p class="episode-summary scrollable-summary">
+        <p class="episode-summary">
             ${overview}
         </p>
-        
-        ${readMoreButton}
     </div>
+
   `;
 
   document.getElementById("root").appendChild(bookCard);
@@ -376,9 +386,17 @@ function enhanceBookCards() {
       openBookModalFromCard(card);
     });
 
+    const buyBtn = document.createElement("a");
+    buyBtn.className = "card-button";
+    buyBtn.href = getBookDataFromCard(card).link;
+    buyBtn.target = "_blank";
+    buyBtn.title = "Купити";
+    buyBtn.innerHTML = '<i class="fa-solid fa-cart-shopping"></i>';
+
     const shareBtn = document.createElement("button");
     shareBtn.className = "card-button";
-    shareBtn.textContent = "Поділитися";
+    shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i>';
+    shareBtn.title = "Поділитися";
     shareBtn.addEventListener("click", async (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -386,38 +404,13 @@ function enhanceBookCards() {
     });
 
     actions.appendChild(detailsBtn);
+    actions.appendChild(buyBtn);
     actions.appendChild(shareBtn);
+
     card.appendChild(actions);
   });
 }
 
-async function shareBookFromCard(card) {
-  const data = getBookDataFromCard(card);
-  const shareData = {
-    title: data.title,
-    text: `Рекомендую книгу: "${data.title}"`,
-    url: data.link || window.location.href,
-  };
-
-  if (navigator.share) {
-    try {
-      await navigator.share(shareData);
-    } catch (err) {
-      console.warn("Share cancelled or failed", err);
-    }
-  } else if (navigator.clipboard) {
-    try {
-      await navigator.clipboard.writeText(shareData.url);
-      alert("Посилання на книгу скопійовано в буфер обміну.");
-    } catch (err) {
-      alert(
-        "Не вдалося скопіювати посилання. Ось воно:\n" + shareData.url
-      );
-    }
-  } else {
-    alert("Ось посилання на книгу:\n" + shareData.url);
-  }
-}
 
 /* ==========================
    4. ТЕМА (DARK / LIGHT)

@@ -285,13 +285,14 @@ body.light-theme .app-header {
   display: grid;
   grid-template-columns: 1fr;
   padding: 20px clamp(10px, 3vw, 40px);
-  max-width: min(100%, 1400px);
+  max-width: 1600px;
   margin: 0 auto;
 }
 
 #root {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 320px));
+  justify-content: center;
   gap: 30px;
 }
 
@@ -353,28 +354,40 @@ body.light-theme .app-header {
   order: 2;
 }
 
+.icon-button {
+  order: 4;
+  width: 38px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 6px;
+  text-decoration: none;
+  margin-bottom: 10px;
+}
+
+.icon-button:hover {
+  background-color: var(--color-accent);
+  color: var(--color-bg-main);
+}
+
 /* ===================================== */
 /* 4. КОНТЕЙНЕР ОПИСУ (СКРОЛІНГ)         */
 /* ===================================== */
 
 .description-container {
-  height: 250px;
-  max-height: 250px;
-  margin: 15px 0 10px 0;
-  text-align: justify;
-  overflow-y: scroll;
-  flex-grow: 1;
   order: 3;
-  padding-right: 15px;
+  margin: 15px 0 10px 0;
 }
 
-.description-container::-webkit-scrollbar {
-  width: 0;
-  background: transparent;
+.read-more-link {
+  order: 4;
 }
 
-.description-container {
-  scrollbar-width: none;
+.card-actions {
+  order: 5;
 }
 
 .episode-summary {
@@ -409,7 +422,7 @@ body.light-theme .app-header {
   display: flex;
   gap: 10px;
   width: 100%;
-  justify-content: flex-end;
+  justify-content: space-between;
 }
 
 .card-button {
@@ -902,10 +915,7 @@ body.light-theme .social-icon:hover {
   margin-left: 4px;
 }
 
-/* ===================================== */
 /* 11. ТАБЛИЦЯ */
-/* ===================================== */
-
 
 .top-books-section {
   padding: 40px 20px;
@@ -991,7 +1001,7 @@ body.light-theme .social-icon:hover {
     display: none;
   }
 }
-/* ===================================== */
+
 /* 12. ГАЛЕРЕЯ                    */   
 
 .gallery-section {
@@ -1001,7 +1011,7 @@ body.light-theme .social-icon:hover {
 
 .gallery-inner {
   max-width: 1300px;
-  margin: 10 auto;
+  margin: 10px auto;
 }
 
 .gallery-section h2 {
@@ -1016,7 +1026,7 @@ body.light-theme .social-icon:hover {
   color: var(--color-text-secondary);
 }
 
-/* --- ДЕСКТОП: книжки в один ряд на полиці --- */
+
 .gallery-grid {
   display: flex;
   flex-wrap: nowrap;

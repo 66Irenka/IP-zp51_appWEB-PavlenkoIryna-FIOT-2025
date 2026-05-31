@@ -1,0 +1,6 @@
+# VS Code
+.vscode/
+
+# Системні файли
+.DS_Store
+Thumbs.db
