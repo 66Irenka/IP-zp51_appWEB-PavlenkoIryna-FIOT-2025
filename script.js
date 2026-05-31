@@ -1,9 +1,25 @@
 const SEARCH_TERM_INITIAL = "best sellers";
-const MAX_RESULTS = 40;
-const MAX_DESCRIPTION_LENGTH = 300;
-
 let allBooksData = [];
 
+async function fetchBookDescription(workKey) {
+  try {
+    const response = await fetch(`https://openlibrary.org${workKey}.json`);
+    const data = await response.json();
+
+    if (typeof data.description === "string") {
+      return data.description;
+    }
+
+    if (data.description && data.description.value) {
+      return data.description.value;
+    }
+
+    return "";
+  } catch (error) {
+    console.error("Помилка завантаження опису:", error);
+    return "";
+  }
+}
 
 async function fetchBooks(query) {
   const safeQuery = encodeURIComponent(query.trim());
@@ -27,29 +43,40 @@ async function fetchBooks(query) {
       return [];
     }
 
-    return data.docs.map((book) => ({
-      id: book.key,
-      volumeInfo: {
-        title: book.title || "Назва відсутня",
-        subtitle: book.subtitle || "",
-        authors: book.author_name || ["Автор невідомий"],
-        description: book.first_publish_year
-          ? `Рік першої публікації: ${book.first_publish_year}`
-          : "Опис відсутній",
-        publishedDate: book.first_publish_year
-          ? String(book.first_publish_year)
-          : "",
-        infoLink: `https://openlibrary.org${book.key}`,
-        imageLinks: {
-          thumbnail: book.cover_i
-            ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
-            : "https://via.placeholder.com/128x192?text=No+Cover",
-          smallThumbnail: book.cover_i
-            ? `https://covers.openlibrary.org/b/id/${book.cover_i}-S.jpg`
-            : "https://via.placeholder.com/128x192?text=No+Cover",
-        },
-      },
-    }));
+    const books = await Promise.all(
+      data.docs.map(async (book) => {
+        const fullDescription = await fetchBookDescription(book.key);
+
+        return {
+          id: book.key,
+          volumeInfo: {
+            title: book.title || "Назва відсутня",
+            subtitle: book.subtitle || "",
+            authors: book.author_name || ["Автор невідомий"],
+            description:
+              fullDescription ||
+              book.subtitle ||
+              (book.first_publish_year
+                ? `Рік першої публікації: ${book.first_publish_year}`
+                : "Опис відсутній"),
+            publishedDate: book.first_publish_year
+              ? String(book.first_publish_year)
+              : "",
+            infoLink: `https://openlibrary.org${book.key}`,
+            imageLinks: {
+              thumbnail: book.cover_i
+                ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
+                : "https://via.placeholder.com/128x192?text=No+Cover",
+              smallThumbnail: book.cover_i
+                ? `https://covers.openlibrary.org/b/id/${book.cover_i}-S.jpg`
+                : "https://via.placeholder.com/128x192?text=No+Cover",
+            },
+          },
+        };
+      })
+    );
+
+    return books;
   } catch (error) {
     console.error("Помилка завантаження книг:", error);
     rootElem.innerHTML = `<p style="color: #ff6b6b; text-align: center; grid-column: 1 / -1;">Помилка завантаження даних: ${error.message}</p>`;
@@ -67,7 +94,9 @@ async function setup() {
   document
     .getElementById("resetSearchButton")
     .addEventListener("click", handleReset);
+
   document.getElementById("sortSelect").addEventListener("change", handleSort);
+
   document
     .getElementById("episodeSelect")
     .addEventListener("change", handleSelectChange);
@@ -84,12 +113,12 @@ async function setup() {
   initModalLogic();
   initThemeToggle();
   initHeaderShadowOnScroll();
-  initGallery(); 
 }
 
 function makePageForBooks(bookList, updateSelect = true) {
   const rootElem = document.getElementById("root");
   rootElem.innerHTML = "";
+
   const selectElem = document.getElementById("episodeSelect");
 
   if (updateSelect) {
@@ -106,24 +135,21 @@ function makePageForBooks(bookList, updateSelect = true) {
   }
 
   bookList.forEach(displayBook);
-
   enhanceBookCards();
 }
 
 function displayBook(book) {
-  const { id, volumeInfo } = book;
+  const { volumeInfo } = book;
 
   const title = volumeInfo.title || "Назва відсутня";
   const authors = volumeInfo.authors
     ? volumeInfo.authors.join(", ")
     : "Автор невідомий";
 
-  const descriptionSource =
-    volumeInfo.description || volumeInfo.subtitle || "";
-  const overview = descriptionSource;
+  const overview = volumeInfo.description || "Опис відсутній";
 
-  const placeholderUrl =
-    "https://via.placeholder.com/128x192?text=No+Cover";
+  const placeholderUrl = "https://via.placeholder.com/128x192?text=No+Cover";
+
   const imageUrl = volumeInfo.imageLinks
     ? volumeInfo.imageLinks.thumbnail ||
       volumeInfo.imageLinks.smallThumbnail ||
@@ -134,28 +160,23 @@ function displayBook(book) {
   bookCard.className = "episode-item";
 
   bookCard.innerHTML = `
-    <a href="${volumeInfo.infoLink}" target="_blank" class="book-link-wrapper">
-        <h3 class="episode-title">${title}</h3>
-    </a>
+  <a href="${volumeInfo.infoLink}" target="_blank" class="book-link-wrapper">
+    <h3 class="episode-title">${title}</h3>
+  </a>
 
-    <img class="episode-image" src="${imageUrl}" alt="Обкладинка книги ${title}">
+  <img class="episode-image" src="${imageUrl}" alt="Обкладинка книги ${title}">
 
-    <p class="episode-authors">Автор(и): ${authors}</p>
+  <p class="episode-authors">Автор(и): ${authors}</p>
 
-    <div class="description-container">
-        <p class="episode-summary">
-            ${overview}
-        </p>
-    </div>
+  <p class="episode-year">Рік першої публікації: ${
+    volumeInfo.publishedDate || "Невідомо"
+  }</p>
 
-  `;
+  <p class="episode-summary" hidden>${overview}</p>
+`;
 
   document.getElementById("root").appendChild(bookCard);
 }
-
-/* ==========================
-   2. ОБРОБКА ПОДІЙ
-   ========================== */
 
 function handleReset() {
   document.getElementById("searchInput").value = "";
@@ -172,7 +193,6 @@ function handleReset() {
 function handleSort() {
   const listToDisplay = getDisplayList();
   const sortedList = applySort(listToDisplay);
-
   makePageForBooks(sortedList, false);
 }
 
@@ -185,15 +205,20 @@ function getDisplayList() {
 
   if (selectedId !== "-1") {
     return allBooksData.filter((book) => book.id.toString() === selectedId);
-  } else if (searchTerm) {
+  }
+
+  if (searchTerm) {
     return allBooksData.filter((book) => {
       const volumeInfo = book.volumeInfo;
+
       const bookTitle = volumeInfo.title
         ? volumeInfo.title.toLowerCase()
         : "";
+
       const bookAuthors = volumeInfo.authors
         ? volumeInfo.authors.join(", ").toLowerCase()
         : "";
+
       const bookOverview = volumeInfo.description
         ? volumeInfo.description.toLowerCase()
         : "";
@@ -204,9 +229,9 @@ function getDisplayList() {
         bookOverview.includes(searchTerm)
       );
     });
-  } else {
-    return allBooksData;
   }
+
+  return allBooksData;
 }
 
 function applySort(list) {
@@ -223,27 +248,22 @@ function applySort(list) {
     const infoB = b.volumeInfo;
 
     if (sortCriterion === "title") {
-      const titleA = infoA.title || "";
-      const titleB = infoB.title || "";
-      return titleA.localeCompare(titleB);
-    } else if (sortCriterion === "author") {
+      return (infoA.title || "").localeCompare(infoB.title || "");
+    }
+
+    if (sortCriterion === "author") {
       const authorA = (infoA.authors && infoA.authors[0]) || "";
       const authorB = (infoB.authors && infoB.authors[0]) || "";
       return authorA.localeCompare(authorB);
-    } else if (sortCriterion === "year_desc" || sortCriterion === "year_asc") {
-      const yearA =
-        parseInt((infoA.publishedDate || "0").substring(0, 4)) || 0;
-      const yearB =
-        parseInt((infoB.publishedDate || "0").substring(0, 4)) || 0;
-
-      if (yearA === yearB) return 0;
-
-      if (sortCriterion === "year_desc") {
-        return yearB - yearA;
-      } else {
-        return yearA - yearB;
-      }
     }
+
+    if (sortCriterion === "year_desc" || sortCriterion === "year_asc") {
+      const yearA = parseInt(infoA.publishedDate || "0") || 0;
+      const yearB = parseInt(infoB.publishedDate || "0") || 0;
+
+      return sortCriterion === "year_desc" ? yearB - yearA : yearA - yearB;
+    }
+
     return 0;
   });
 
@@ -251,8 +271,6 @@ function applySort(list) {
 }
 
 function handleSearch(event) {
-  const searchTerm = event.target.value.toLowerCase().trim();
-
   document.getElementById("episodeSelect").value = "-1";
 
   const filteredBooks = getDisplayList();
@@ -265,8 +283,7 @@ function handleSearch(event) {
 }
 
 function handleSelectChange() {
-  const selectElem = document.getElementById("episodeSelect");
-  const selectedId = selectElem.value;
+  const selectedId = document.getElementById("episodeSelect").value;
 
   document.getElementById("searchInput").value = "";
 
@@ -287,15 +304,12 @@ function handleSelectChange() {
   }
 }
 
-/* ==========================
-   3. МОДАЛЬНЕ ВІКНО + SHARE
-   ========================== */
-
 function getBookDataFromCard(card) {
   const titleEl = card.querySelector(".episode-title");
   const authorsEl = card.querySelector(".episode-authors");
   const imgEl = card.querySelector(".episode-image");
   const descEl = card.querySelector(".episode-summary");
+  const yearEl = card.querySelector(".episode-year");
   const linkEl = card.querySelector(".book-link-wrapper");
 
   return {
@@ -303,12 +317,14 @@ function getBookDataFromCard(card) {
     authors: authorsEl ? authorsEl.textContent.trim() : "Автор невідомий",
     image: imgEl ? imgEl.src : "",
     description: descEl ? descEl.textContent.trim() : "Опис відсутній",
+    year: yearEl ? yearEl.textContent.trim() : "",
     link: linkEl ? linkEl.href : window.location.href,
   };
 }
 
 function openBookModalFromCard(card) {
   const data = getBookDataFromCard(card);
+
   const modal = document.getElementById("bookModal");
   if (!modal) return;
 
@@ -318,9 +334,10 @@ function openBookModalFromCard(card) {
   document.getElementById("modalTitle").textContent = data.title;
   document.getElementById("modalAuthors").textContent = data.authors;
   document.getElementById("modalDescription").textContent = data.description;
-  document.getElementById("modalYear").textContent = "";
+  document.getElementById("modalYear").textContent = data.year;
 
   const img = document.getElementById("modalImage");
+
   if (data.image) {
     img.src = data.image;
     img.style.display = "block";
@@ -329,9 +346,10 @@ function openBookModalFromCard(card) {
   }
 
   const link = document.getElementById("modalLink");
+
   if (link) {
     link.href = data.link || "#";
-    link.style.display = "inline-block"; // показуємо кнопку для книг
+    link.style.display = "inline-block";
   }
 
   document.body.style.overflow = "hidden";
@@ -339,23 +357,30 @@ function openBookModalFromCard(card) {
 
 async function shareBookFromCard(card) {
   const data = getBookDataFromCard(card);
+  const shareText = `${data.title}\n${data.authors}\n${data.link}`;
 
   try {
     if (navigator.share) {
       await navigator.share({
         title: data.title,
-        text: `${data.title} — ${data.authors}`,
+        text: shareText,
         url: data.link,
       });
-    } else {
-      await navigator.clipboard.writeText(data.link);
-      alert("Посилання скопійовано в буфер обміну!");
+      return;
     }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(data.link);
+      alert("Посилання скопійовано!");
+      return;
+    }
+
+    prompt("Скопіюйте посилання:", data.link);
   } catch (error) {
     console.error("Помилка поширення:", error);
+    prompt("Скопіюйте посилання:", data.link);
   }
 }
-
 
 function closeBookModal() {
   const modal = document.getElementById("bookModal");
@@ -363,6 +388,7 @@ function closeBookModal() {
 
   modal.classList.remove("is-open");
   modal.setAttribute("aria-hidden", "true");
+
   document.body.style.overflow = "";
 }
 
@@ -372,7 +398,9 @@ function initModalLogic() {
 
   const closeBtn = document.getElementById("modalCloseBtn");
 
-  closeBtn.addEventListener("click", closeBookModal);
+  if (closeBtn) {
+    closeBtn.addEventListener("click", closeBookModal);
+  }
 
   modal.addEventListener("click", (e) => {
     if (e.target === modal) {
@@ -392,6 +420,7 @@ function enhanceBookCards() {
 
   cards.forEach((card) => {
     if (card.dataset.enhanced === "true") return;
+
     card.dataset.enhanced = "true";
 
     const actions = document.createElement("div");
@@ -431,11 +460,6 @@ function enhanceBookCards() {
   });
 }
 
-
-/* ==========================
-   4. ТЕМА (DARK / LIGHT)
-   ========================== */
-
 function applyTheme(theme) {
   const body = document.body;
   const btn = document.getElementById("themeToggle");
@@ -465,10 +489,6 @@ function initThemeToggle() {
   });
 }
 
-/* ==========================
-   5. ТІНЬ ДЛЯ ХЕДЕРА ПРИ СКРОЛІ
-   ========================== */
-
 function initHeaderShadowOnScroll() {
   const header = document.querySelector(".app-header");
   if (!header) return;
@@ -487,21 +507,23 @@ function initHeaderShadowOnScroll() {
 
 const scrollBtn = document.getElementById("scrollTopBtn");
 
-window.addEventListener("scroll", () => {
-  if (window.scrollY > 400) {
-    scrollBtn.style.opacity = "1";
-    scrollBtn.style.pointerEvents = "auto";
-  } else {
-    scrollBtn.style.opacity = "0";
-    scrollBtn.style.pointerEvents = "none";
-  }
-});
-
-scrollBtn.addEventListener("click", () => {
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
+if (scrollBtn) {
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 400) {
+      scrollBtn.style.opacity = "1";
+      scrollBtn.style.pointerEvents = "auto";
+    } else {
+      scrollBtn.style.opacity = "0";
+      scrollBtn.style.pointerEvents = "none";
+    }
   });
-});
+
+  scrollBtn.addEventListener("click", () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  });
+}
 
 window.onload = setup;
