@@ -337,6 +337,26 @@ function openBookModalFromCard(card) {
   document.body.style.overflow = "hidden";
 }
 
+async function shareBookFromCard(card) {
+  const data = getBookDataFromCard(card);
+
+  try {
+    if (navigator.share) {
+      await navigator.share({
+        title: data.title,
+        text: `${data.title} — ${data.authors}`,
+        url: data.link,
+      });
+    } else {
+      await navigator.clipboard.writeText(data.link);
+      alert("Посилання скопійовано в буфер обміну!");
+    }
+  } catch (error) {
+    console.error("Помилка поширення:", error);
+  }
+}
+
+
 function closeBookModal() {
   const modal = document.getElementById("bookModal");
   if (!modal) return;
