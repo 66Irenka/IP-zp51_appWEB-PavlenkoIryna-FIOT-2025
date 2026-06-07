@@ -354,6 +354,14 @@ body.light-theme .app-header {
   order: 2;
 }
 
+.episode-year {
+  font-size: 0.9em;
+  color: var(--color-text-secondary);
+  margin-bottom: 10px;
+  text-align: center;
+  order: 3;
+}
+
 .icon-button {
   order: 4;
   width: 38px;
