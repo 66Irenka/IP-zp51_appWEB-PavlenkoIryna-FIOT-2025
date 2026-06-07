@@ -1,25 +1,27 @@
 <!DOCTYPE html>
 <html lang="uk">
   <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Інтерактивний каталог | Проєкт Павленко І.А.</title>
+    <title>Інтерактивний каталог | Проєкт Павленко І.А.</title>
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap"
-    rel="stylesheet"
-  />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
 
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-  />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
 
-  <link rel="stylesheet" href="style.css" />
-</head>
-<button id="scrollTopBtn" class="scroll-top-btn">⬆</button>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
   <body>
+    <button id="scrollTopBtn" class="scroll-top-btn" type="button">⬆</button>
+
     <header class="app-header">
       <div class="header-inner">
         <div class="app-bar">
@@ -28,7 +30,8 @@
 
             <div class="app-title-group">
               <h1>Інтерактивний каталог</h1>
-              <p>який дозволяє шукати, сортувати та переглядати актуальні дані
+              <p>
+                який дозволяє шукати, сортувати та переглядати актуальні дані
                 про книги з Open Library
               </p>
             </div>
@@ -38,8 +41,14 @@
             <a href="#home">Головна</a>
             <a href="#about">Блог</a>
             <a href="#contact">Контакти</a>
+
+            <button id="cartToggle" class="header-cart" type="button">
+              <i class="fa-solid fa-cart-shopping"></i>
+              <span id="cartCount">0</span>
+            </button>
           </nav>
         </div>
+
         <div class="filters-card">
           <div class="controls-container">
             <select id="episodeSelect">
@@ -53,14 +62,17 @@
               <option value="year_desc">Роком (Новіші)</option>
               <option value="year_asc">Роком (Старіші)</option>
             </select>
+
             <input
               type="text"
               id="searchInput"
               placeholder="Введіть назву книги, автора або ISBN..."
             />
 
-            <button id="resetSearchButton">Скинути</button>
+            <button id="resetSearchButton" type="button">Скинути</button>
+
             <div id="searchCount"></div>
+
             <button id="themeToggle" class="theme-toggle" type="button">
               🌙 Тема
             </button>
@@ -68,15 +80,43 @@
         </div>
       </div>
     </header>
+
+    <div id="cartModal" class="modal-backdrop" aria-hidden="true">
+  <div class="cart-modal">
+    <button
+      class="modal-close"
+      id="cartCloseBtn"
+      type="button"
+      aria-label="Закрити"
+    >
+      &times;
+    </button>
+
+    <div class="cart-modal-header">
+      <h2>Мій кошик</h2>
+
+      <button id="clearCartBtn" type="button">
+        Очистити кошик
+      </button>
+    </div>
+
+    <div id="cartList" class="cart-list"></div>
+  </div>
+</div>
+
     <main id="home" class="container">
       <div id="root"></div>
+
+      <div id="pagination" class="pagination"></div>
     </main>
+
     <section id="about" class="blog-section">
       <div class="blog-inner">
         <h2>Наш блог</h2>
         <p class="blog-subtitle">
           Ділимося думками про книги, навчання та натхнення.
         </p>
+
         <div class="blog-grid">
           <article class="blog-card">
             <h3>Як обрати книгу для саморозвитку</h3>
@@ -108,130 +148,140 @@
       </div>
     </section>
 
-   <section class="top-books-section">
-  <div class="top-books-inner">
-    <h2>
-      Авторська добірка книг, які ми рекомендуємо додати до свого списку читання.
-    </h2>
+    <section class="top-books-section">
+      <div class="top-books-inner">
+        <h2>
+          Авторська добірка книг, які ми рекомендуємо додати до свого списку
+          читання.
+        </h2>
 
-    <div class="top-books-table-wrapper">
-      <table class="top-books-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Назва книги</th>
-            <th>Автор</th>
-            <th>Жанр</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>«1984»</td>
-            <td>Джордж Орвелл</td>
-            <td>Антиутопія</td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>«Гаррі Поттер і філософський камінь»</td>
-            <td>Дж. К. Ролінґ</td>
-            <td>Фентезі</td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td>«Гаррі Поттер»</td>
-            <td>Джоан Роулінг</td>
-            <td>Фентезі</td>
-          </tr>
-          <tr>
-            <td>4</td>
-            <td>«Тигролови»</td>
-            <td>Іван Багряний</td>
-            <td>Пригодницький роман</td>
-          </tr>
-          <tr>
-            <td>5</td>
-            <td>«Сто років самотності»</td>
-            <td>Ґабріель Ґарсія Маркес</td>
-            <td>Магічний реалізм</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</section>
+        <div class="top-books-table-wrapper">
+          <table class="top-books-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Назва книги</th>
+                <th>Автор</th>
+                <th>Жанр</th>
+              </tr>
+            </thead>
 
-<section class="gallery-section" id="gallery">
-  <div class="gallery-inner">
-    <h2> Найчастіше переглядають.</h2>
-    <p class="gallery-subtitle">  
-    </p>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>«1984»</td>
+                <td>Джордж Орвелл</td>
+                <td>Антиутопія</td>
+              </tr>
 
-    <div class="gallery-grid">
+              <tr>
+                <td>2</td>
+                <td>«Гаррі Поттер і філософський камінь»</td>
+                <td>Дж. К. Ролінґ</td>
+                <td>Фентезі</td>
+              </tr>
 
-<figure class="gallery-item">
-        <img
-          src="images/1.jpg"
-          alt="Ілюстрація 5"
-          class="gallery-image"
-          data-full="images/1.jpп"/>
-        <figcaption></figcaption>
-      </figure>
+              <tr>
+                <td>3</td>
+                <td>«Гаррі Поттер»</td>
+                <td>Джоан Роулінг</td>
+                <td>Фентезі</td>
+              </tr>
 
-      <figure class="gallery-item">
-        <img
-          src="images/2.jpg"
-          alt="Ілюстрація 2"
-          class="gallery-image"
-          data-full="images/2.jpg"/>
-        <figcaption></figcaption>
-      </figure>
+              <tr>
+                <td>4</td>
+                <td>«Тигролови»</td>
+                <td>Іван Багряний</td>
+                <td>Пригодницький роман</td>
+              </tr>
 
-      <figure class="gallery-item">
-        <img
-          src="images/5.png"
-          alt="Ілюстрація 5"
-          class="gallery-image"
-          data-full="images/5.png"/>
-        <figcaption></figcaption>
-      </figure>
+              <tr>
+                <td>5</td>
+                <td>«Сто років самотності»</td>
+                <td>Ґабріель Ґарсія Маркес</td>
+                <td>Магічний реалізм</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
-      <figure class="gallery-item">
-        <img
-          src="images/6.png"
-          alt="Ілюстрація 6"
-          class="gallery-image"
-          data-full="images/6.png"
-        />
-        <figcaption></figcaption>
-      </figure>
+    <section class="gallery-section" id="gallery">
+      <div class="gallery-inner">
+        <h2>Найчастіше переглядають</h2>
+        <p class="gallery-subtitle"></p>
 
-      <figure class="gallery-item">
-        <img
-          src="images/7.png"
-          alt="Ілюстрація 7"
-          class="gallery-image"
-          data-full="images/7.png"/>
-        <figcaption></figcaption>
-      </figure>
+        <div class="gallery-grid">
+          <figure class="gallery-item">
+            <img
+              src="images/1.jpg"
+              alt="Ілюстрація 1"
+              class="gallery-image"
+              data-full="images/1.jpg"
+            />
+            <figcaption></figcaption>
+          </figure>
 
-      <figure class="gallery-item">
-        <img
-          src="images/8.png"
-          alt="Ілюстрація 8"
-          class="gallery-image"
-          data-full="images/8.png"/>
-        <figcaption></figcaption>
-      </figure>
-    </div>
-  </div>
-</section>
+          <figure class="gallery-item">
+            <img
+              src="images/2.jpg"
+              alt="Ілюстрація 2"
+              class="gallery-image"
+              data-full="images/2.jpg"
+            />
+            <figcaption></figcaption>
+          </figure>
+
+          <figure class="gallery-item">
+            <img
+              src="images/5.png"
+              alt="Ілюстрація 5"
+              class="gallery-image"
+              data-full="images/5.png"
+            />
+            <figcaption></figcaption>
+          </figure>
+
+          <figure class="gallery-item">
+            <img
+              src="images/6.png"
+              alt="Ілюстрація 6"
+              class="gallery-image"
+              data-full="images/6.png"
+            />
+            <figcaption></figcaption>
+          </figure>
+
+          <figure class="gallery-item">
+            <img
+              src="images/7.png"
+              alt="Ілюстрація 7"
+              class="gallery-image"
+              data-full="images/7.png"
+            />
+            <figcaption></figcaption>
+          </figure>
+
+          <figure class="gallery-item">
+            <img
+              src="images/8.png"
+              alt="Ілюстрація 8"
+              class="gallery-image"
+              data-full="images/8.png"
+            />
+            <figcaption></figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
 
     <footer class="app-footer" id="contact">
       <div class="footer-content-wrapper">
         <div class="footer-contact">
           <h4>Контакти</h4>
           <p>м. Вінниця</p>
+
           <p>
             Телефон:
             <a href="tel:+380988375047">+38 (098) 837 50 47</a>
@@ -248,12 +298,14 @@
               <img src="images/icon2.png" alt="LinkedIn" class="social-img" />
             </a>
 
-            <a href="https://www.facebook.com/irenmetal?locale=ru_RU"
+            <a
+              href="https://www.facebook.com/irenmetal?locale=ru_RU"
               target="_blank"
               class="social-icon"
               title="Facebook"
-              aria-label="Facebook">
-              <img src="images/icon1.png" alt="LinkedIn" class="social-img" />
+              aria-label="Facebook"
+            >
+              <img src="images/icon1.png" alt="Facebook" class="social-img" />
             </a>
           </div>
         </div>
@@ -267,15 +319,16 @@
               id="feedbackEmail"
               name="email"
               placeholder="Ваш Email (необов'язково)"
-              class="footer-input"/>
+              class="footer-input"
+            />
 
             <textarea
               id="feedbackMessage"
               name="message"
               placeholder="Ваш коментар про бібліотеку..."
               required
-              class="footer-textarea">
-            </textarea>
+              class="footer-textarea"
+            ></textarea>
 
             <button type="submit" class="footer-button">Надіслати</button>
           </form>
@@ -283,14 +336,20 @@
       </div>
 
       <p class="copyright-info">&copy; 2025 Павленко І.А.</p>
+
       <p class="data-source">
-        Дані надано Open Library API. Всі права захищено
+        Дані надано Open Library API. Всі права захищено.
       </p>
     </footer>
 
     <div id="bookModal" class="modal-backdrop" aria-hidden="true">
       <div class="modal">
-        <button class="modal-close" id="modalCloseBtn" aria-label="Закрити">
+        <button
+          class="modal-close"
+          id="modalCloseBtn"
+          type="button"
+          aria-label="Закрити"
+        >
           &times;
         </button>
 
@@ -309,7 +368,7 @@
             <p id="modalDescription" class="modal-description"></p>
 
             <a id="modalLink" class="modal-link" href="#" target="_blank">
-              Відкрити в  Open Library
+              Відкрити в Open Library
             </a>
           </div>
         </div>

@@ -1,5 +1,11 @@
 const SEARCH_TERM_INITIAL = "best sellers";
+
 let allBooksData = [];
+let currentPage = 1;
+const booksPerPage = 6;
+
+let currentDisplayList = [];
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
 async function fetchBookDescription(workKey) {
   try {
@@ -108,16 +114,20 @@ async function setup() {
 
   document.getElementById(
     "searchCount"
-  ).textContent = `Всього книг : ${allBooksData.length}`;
+  ).textContent = `Всього книг: ${allBooksData.length}`;
 
   initModalLogic();
   initThemeToggle();
   initHeaderShadowOnScroll();
+  renderCart();
+  initCartModal();
 }
 
 function makePageForBooks(bookList, updateSelect = true) {
   const rootElem = document.getElementById("root");
   rootElem.innerHTML = "";
+
+  currentDisplayList = bookList;
 
   const selectElem = document.getElementById("episodeSelect");
 
@@ -126,16 +136,76 @@ function makePageForBooks(bookList, updateSelect = true) {
 
     allBooksData.forEach((book) => {
       const option = document.createElement("option");
-      const { id, volumeInfo } = book;
-
-      option.value = id.toString();
-      option.textContent = volumeInfo.title;
+      option.value = book.id.toString();
+      option.textContent = book.volumeInfo.title;
       selectElem.appendChild(option);
     });
   }
 
-  bookList.forEach(displayBook);
+  const paginatedBooks = paginateBooks(bookList);
+
+  paginatedBooks.forEach(displayBook);
   enhanceBookCards();
+  renderPagination(bookList);
+}
+
+function paginateBooks(bookList) {
+  const start = (currentPage - 1) * booksPerPage;
+  const end = start + booksPerPage;
+
+  return bookList.slice(start, end);
+}
+
+function renderPagination(bookList) {
+  const pagination = document.getElementById("pagination");
+  if (!pagination) return;
+
+  pagination.innerHTML = "";
+
+  const totalPages = Math.ceil(bookList.length / booksPerPage);
+
+  if (totalPages <= 1) return;
+
+  const prevBtn = document.createElement("button");
+  prevBtn.textContent = "←";
+  prevBtn.className = "pagination-button";
+  prevBtn.disabled = currentPage === 1;
+
+  prevBtn.addEventListener("click", () => {
+    currentPage--;
+    makePageForBooks(bookList, false);
+  });
+
+  pagination.appendChild(prevBtn);
+
+  for (let i = 1; i <= totalPages; i++) {
+    const btn = document.createElement("button");
+    btn.textContent = i;
+    btn.className = "pagination-button";
+
+    if (i === currentPage) {
+      btn.classList.add("active");
+    }
+
+    btn.addEventListener("click", () => {
+      currentPage = i;
+      makePageForBooks(bookList, false);
+    });
+
+    pagination.appendChild(btn);
+  }
+
+  const nextBtn = document.createElement("button");
+  nextBtn.textContent = "→";
+  nextBtn.className = "pagination-button";
+  nextBtn.disabled = currentPage === totalPages;
+
+  nextBtn.addEventListener("click", () => {
+    currentPage++;
+    makePageForBooks(bookList, false);
+  });
+
+  pagination.appendChild(nextBtn);
 }
 
 function displayBook(book) {
@@ -158,22 +228,23 @@ function displayBook(book) {
 
   const bookCard = document.createElement("div");
   bookCard.className = "episode-item";
+  bookCard.dataset.bookId = book.id;
 
   bookCard.innerHTML = `
-  <a href="${volumeInfo.infoLink}" target="_blank" class="book-link-wrapper">
-    <h3 class="episode-title">${title}</h3>
-  </a>
+    <a href="${volumeInfo.infoLink}" target="_blank" class="book-link-wrapper">
+      <h3 class="episode-title">${title}</h3>
+    </a>
 
-  <img class="episode-image" src="${imageUrl}" alt="Обкладинка книги ${title}">
+    <img class="episode-image" src="${imageUrl}" alt="Обкладинка книги ${title}">
 
-  <p class="episode-authors">Автор(и): ${authors}</p>
+    <p class="episode-authors">Автор(и): ${authors}</p>
 
-  <p class="episode-year">Рік першої публікації: ${
-    volumeInfo.publishedDate || "Невідомо"
-  }</p>
+    <p class="episode-year">Рік першої публікації: ${
+      volumeInfo.publishedDate || "Невідомо"
+    }</p>
 
-  <p class="episode-summary" hidden>${overview}</p>
-`;
+    <p class="episode-summary" hidden>${overview}</p>
+  `;
 
   document.getElementById("root").appendChild(bookCard);
 }
@@ -183,6 +254,8 @@ function handleReset() {
   document.getElementById("episodeSelect").value = "-1";
   document.getElementById("sortSelect").value = "none";
 
+  currentPage = 1;
+
   const searchCountElem = document.getElementById("searchCount");
   searchCountElem.textContent = `Всього книг: ${allBooksData.length}`;
 
@@ -191,6 +264,8 @@ function handleReset() {
 }
 
 function handleSort() {
+  currentPage = 1;
+
   const listToDisplay = getDisplayList();
   const sortedList = applySort(listToDisplay);
   makePageForBooks(sortedList, false);
@@ -270,8 +345,10 @@ function applySort(list) {
   return sortedList;
 }
 
-function handleSearch(event) {
+function handleSearch() {
   document.getElementById("episodeSelect").value = "-1";
+
+  currentPage = 1;
 
   const filteredBooks = getDisplayList();
 
@@ -286,6 +363,8 @@ function handleSelectChange() {
   const selectedId = document.getElementById("episodeSelect").value;
 
   document.getElementById("searchInput").value = "";
+
+  currentPage = 1;
 
   const searchCountElem = document.getElementById("searchCount");
 
@@ -302,6 +381,89 @@ function handleSelectChange() {
     makePageForBooks(sortedList, false);
     searchCountElem.textContent = `Всього книг: ${allBooksData.length}`;
   }
+}
+
+function saveCart() {
+  localStorage.setItem("cart", JSON.stringify(cart));
+}
+
+function addToCart(book) {
+  const isAlreadyInCart = cart.some((item) => item.id === book.id);
+
+  if (isAlreadyInCart) {
+    alert("Ця книга вже є в кошику");
+    return;
+  }
+
+  cart.push(book);
+  saveCart();
+  renderCart();
+  alert("Книгу додано в кошик");
+}
+
+function removeFromCart(bookId) {
+  cart = cart.filter((item) => item.id !== bookId);
+  saveCart();
+  renderCart();
+}
+
+function clearCart() {
+  cart = [];
+  saveCart();
+  renderCart();
+}
+
+function renderCart() {
+  const cartList = document.getElementById("cartList");
+  const cartCount = document.getElementById("cartCount");
+  const clearCartBtn = document.getElementById("clearCartBtn");
+
+  if (cartCount) {
+    cartCount.textContent = cart.length;
+  }
+
+  if (!cartList) return;
+
+  cartList.innerHTML = "";
+
+  if (cart.length === 0) {
+    cartList.innerHTML = "<p class='cart-empty'>Кошик порожній</p>";
+
+    if (clearCartBtn) {
+      clearCartBtn.style.display = "none";
+    }
+
+    return;
+  }
+
+  if (clearCartBtn) {
+    clearCartBtn.style.display = "inline-block";
+    clearCartBtn.onclick = clearCart;
+  }
+
+  cart.forEach((book) => {
+    const { volumeInfo } = book;
+
+    const cartItem = document.createElement("div");
+    cartItem.className = "cart-item";
+
+    cartItem.innerHTML = `
+      <div class="cart-item-info">
+        <strong>${volumeInfo.title}</strong>
+        <span>${volumeInfo.authors ? volumeInfo.authors.join(", ") : "Автор невідомий"}</span>
+      </div>
+
+      <button class="cart-remove-btn" type="button">Видалити</button>
+    `;
+
+    const removeBtn = cartItem.querySelector(".cart-remove-btn");
+
+    removeBtn.addEventListener("click", () => {
+      removeFromCart(book.id);
+    });
+
+    cartList.appendChild(cartItem);
+  });
 }
 
 function getBookDataFromCard(card) {
@@ -415,6 +577,45 @@ function initModalLogic() {
   });
 }
 
+function initCartModal() {
+  const cartToggle = document.getElementById("cartToggle");
+  const cartModal = document.getElementById("cartModal");
+  const cartCloseBtn = document.getElementById("cartCloseBtn");
+
+  if (!cartToggle || !cartModal) return;
+
+  cartToggle.addEventListener("click", () => {
+    cartModal.classList.add("is-open");
+    cartModal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  });
+
+  if (cartCloseBtn) {
+    cartCloseBtn.addEventListener("click", closeCartModal);
+  }
+
+  cartModal.addEventListener("click", (e) => {
+    if (e.target === cartModal) {
+      closeCartModal();
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeCartModal();
+    }
+  });
+}
+
+function closeCartModal() {
+  const cartModal = document.getElementById("cartModal");
+  if (!cartModal) return;
+
+  cartModal.classList.remove("is-open");
+  cartModal.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+}
+
 function enhanceBookCards() {
   const cards = document.querySelectorAll(".episode-item");
 
@@ -435,12 +636,22 @@ function enhanceBookCards() {
       openBookModalFromCard(card);
     });
 
-    const buyBtn = document.createElement("a");
-    buyBtn.className = "card-button";
-    buyBtn.href = getBookDataFromCard(card).link;
-    buyBtn.target = "_blank";
-    buyBtn.title = "Купити";
-    buyBtn.innerHTML = '<i class="fa-solid fa-cart-shopping"></i>';
+    const cartBtn = document.createElement("button");
+    cartBtn.className = "card-button";
+    cartBtn.title = "Додати в кошик";
+    cartBtn.innerHTML = '<i class="fa-solid fa-cart-shopping"></i>';
+
+    cartBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const bookId = card.dataset.bookId;
+      const book = allBooksData.find((item) => item.id === bookId);
+
+      if (book) {
+        addToCart(book);
+      }
+    });
 
     const shareBtn = document.createElement("button");
     shareBtn.className = "card-button";
@@ -453,7 +664,7 @@ function enhanceBookCards() {
     });
 
     actions.appendChild(detailsBtn);
-    actions.appendChild(buyBtn);
+    actions.appendChild(cartBtn);
     actions.appendChild(shareBtn);
 
     card.appendChild(actions);
