@@ -7,43 +7,23 @@ const booksPerPage = 8;
 let currentDisplayList = [];
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-async function fetchBookDescription(workKey) {
-  try {
-    const response = await fetch(`https://openlibrary.org${workKey}.json`);
-    const data = await response.json();
-
-    if (typeof data.description === "string") {
-      return data.description;
-    }
-
-    if (data.description && data.description.value) {
-      return data.description.value;
-    }
-
-    return "";
-  } catch (error) {
-    console.error("Помилка завантаження опису:", error);
-    return "";
-  }
-}
-
 async function fetchBooks(query) {
   const safeQuery = encodeURIComponent(query.trim());
   const API_URL = `https://openlibrary.org/search.json?q=${safeQuery}&limit=20&fields=key,title,author_name,first_publish_year,cover_i,subtitle`;
 
   const rootElem = document.getElementById("root");
-  rootElem.innerHTML =
-    rootElem.innerHTML = `
-  <div class="loader-wrapper">
-    <div class="book-loader">
-      <div class="book-page"></div>
-      <div class="book-page"></div>
-      <div class="book-page"></div>
-    </div>
 
-    <p class="loader-text">Завантажуємо книги з Open Library...</p>
-  </div>
-`;
+  rootElem.innerHTML = `
+    <div class="loader-wrapper">
+      <div class="book-loader">
+        <div class="book-page"></div>
+        <div class="book-page"></div>
+        <div class="book-page"></div>
+      </div>
+
+      <p class="loader-text">Завантажуємо книги з Open Library...</p>
+    </div>
+  `;
 
   try {
     const response = await fetch(API_URL);
@@ -59,43 +39,44 @@ async function fetchBooks(query) {
       return [];
     }
 
-    const books = await Promise.all(
-      data.docs.map(async (book) => {
-        const fullDescription = await fetchBookDescription(book.key);
-
-        return {
-          id: book.key,
-          volumeInfo: {
-            title: book.title || "Назва відсутня",
-            subtitle: book.subtitle || "",
-            authors: book.author_name || ["Автор невідомий"],
-            description:
-              fullDescription ||
-              book.subtitle ||
-              (book.first_publish_year
-                ? `Рік першої публікації: ${book.first_publish_year}`
-                : "Опис відсутній"),
-            publishedDate: book.first_publish_year
-              ? String(book.first_publish_year)
-              : "",
-            infoLink: `https://openlibrary.org${book.key}`,
-            imageLinks: {
-              thumbnail: book.cover_i
-                ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
-                : "https://via.placeholder.com/128x192?text=No+Cover",
-              smallThumbnail: book.cover_i
-                ? `https://covers.openlibrary.org/b/id/${book.cover_i}-S.jpg`
-                : "https://via.placeholder.com/128x192?text=No+Cover",
-            },
+    const books = data.docs.map((book) => {
+      return {
+        id: book.key,
+        volumeInfo: {
+          title: book.title || "Назва відсутня",
+          subtitle: book.subtitle || "",
+          authors: book.author_name || ["Автор невідомий"],
+          description:
+            book.subtitle ||
+            (book.first_publish_year
+              ? `Рік першої публікації: ${book.first_publish_year}`
+              : "Опис відсутній"),
+          publishedDate: book.first_publish_year
+            ? String(book.first_publish_year)
+            : "",
+          infoLink: `https://openlibrary.org${book.key}`,
+          imageLinks: {
+            thumbnail: book.cover_i
+              ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
+              : "https://via.placeholder.com/128x192?text=No+Cover",
+            smallThumbnail: book.cover_i
+              ? `https://covers.openlibrary.org/b/id/${book.cover_i}-S.jpg`
+              : "https://via.placeholder.com/128x192?text=No+Cover",
           },
-        };
-      })
-    );
+        },
+      };
+    });
 
     return books;
   } catch (error) {
     console.error("Помилка завантаження книг:", error);
-    rootElem.innerHTML = `<p style="color: #ff6b6b; text-align: center; grid-column: 1 / -1;">Помилка завантаження даних: ${error.message}</p>`;
+
+    rootElem.innerHTML = `
+      <p style="color: #ff6b6b; text-align: center; grid-column: 1 / -1;">
+        Помилка завантаження даних: ${error.message}
+      </p>
+    `;
+
     return [];
   }
 }
@@ -127,10 +108,11 @@ async function setup() {
   ).textContent = `Всього книг: ${allBooksData.length}`;
 
   initModalLogic();
+  initCartModal();
+  initFeedbackForm();
   initThemeToggle();
   initHeaderShadowOnScroll();
   renderCart();
-  initCartModal();
 }
 
 function makePageForBooks(bookList, updateSelect = true) {
@@ -222,6 +204,7 @@ function displayBook(book) {
   const { volumeInfo } = book;
 
   const title = volumeInfo.title || "Назва відсутня";
+
   const authors = volumeInfo.authors
     ? volumeInfo.authors.join(", ")
     : "Автор невідомий";
@@ -245,13 +228,17 @@ function displayBook(book) {
       <h3 class="episode-title">${title}</h3>
     </a>
 
-    <img class="episode-image" src="${imageUrl}" alt="Обкладинка книги ${title}">
+    <img
+      class="episode-image"
+      src="${imageUrl}"
+      alt="Обкладинка книги ${title}"
+    >
 
     <p class="episode-authors">Автор(и): ${authors}</p>
 
-    <p class="episode-year">Рік першої публікації: ${
-      volumeInfo.publishedDate || "Невідомо"
-    }</p>
+    <p class="episode-year">
+      Рік першої публікації: ${volumeInfo.publishedDate || "Невідомо"}
+    </p>
 
     <p class="episode-summary" hidden>${overview}</p>
   `;
@@ -278,11 +265,13 @@ function handleSort() {
 
   const listToDisplay = getDisplayList();
   const sortedList = applySort(listToDisplay);
+
   makePageForBooks(sortedList, false);
 }
 
 function getDisplayList() {
   const selectedId = document.getElementById("episodeSelect").value;
+
   const searchTerm = document
     .getElementById("searchInput")
     .value.toLowerCase()
@@ -339,6 +328,7 @@ function applySort(list) {
     if (sortCriterion === "author") {
       const authorA = (infoA.authors && infoA.authors[0]) || "";
       const authorB = (infoB.authors && infoB.authors[0]) || "";
+
       return authorA.localeCompare(authorB);
     }
 
@@ -408,6 +398,7 @@ function addToCart(book) {
   cart.push(book);
   saveCart();
   renderCart();
+
   alert("Книгу додано в кошик");
 }
 
@@ -460,7 +451,13 @@ function renderCart() {
     cartItem.innerHTML = `
       <div class="cart-item-info">
         <strong>${volumeInfo.title}</strong>
-        <span>${volumeInfo.authors ? volumeInfo.authors.join(", ") : "Автор невідомий"}</span>
+        <span>
+          ${
+            volumeInfo.authors
+              ? volumeInfo.authors.join(", ")
+              : "Автор невідомий"
+          }
+        </span>
       </div>
 
       <button class="cart-remove-btn" type="button">Видалити</button>
@@ -538,12 +535,14 @@ async function shareBookFromCard(card) {
         text: shareText,
         url: data.link,
       });
+
       return;
     }
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       await navigator.clipboard.writeText(data.link);
       alert("Посилання скопійовано!");
+
       return;
     }
 
@@ -623,6 +622,7 @@ function closeCartModal() {
 
   cartModal.classList.remove("is-open");
   cartModal.setAttribute("aria-hidden", "true");
+
   document.body.style.overflow = "";
 }
 
@@ -640,6 +640,7 @@ function enhanceBookCards() {
     const detailsBtn = document.createElement("button");
     detailsBtn.className = "card-button card-button--primary";
     detailsBtn.textContent = "Читати більше...";
+
     detailsBtn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -667,6 +668,7 @@ function enhanceBookCards() {
     shareBtn.className = "card-button";
     shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i>';
     shareBtn.title = "Поділитися";
+
     shareBtn.addEventListener("click", async (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -706,6 +708,7 @@ function initThemeToggle() {
   btn.addEventListener("click", () => {
     const isLight = document.body.classList.contains("light-theme");
     const next = isLight ? "dark" : "light";
+
     applyTheme(next);
   });
 }
@@ -744,6 +747,42 @@ if (scrollBtn) {
       top: 0,
       behavior: "smooth",
     });
+  });
+}
+
+function initFeedbackForm() {
+  const form = document.getElementById("feedbackForm");
+  const status = document.getElementById("feedbackStatus");
+
+  if (!form || !status) return;
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById("feedbackEmail").value.trim();
+    const message = document.getElementById("feedbackMessage").value.trim();
+
+    if (!message) {
+      status.textContent = "Будь ласка, введіть коментар.";
+      status.className = "feedback-status error";
+
+      return;
+    }
+
+    const feedbacks = JSON.parse(localStorage.getItem("feedbacks")) || [];
+
+    feedbacks.push({
+      email: email || "Не вказано",
+      message,
+      date: new Date().toLocaleString("uk-UA"),
+    });
+
+    localStorage.setItem("feedbacks", JSON.stringify(feedbacks));
+
+    status.textContent = "Дякуємо! Ваш відгук збережено локально.";
+    status.className = "feedback-status success";
+
+    form.reset();
   });
 }
 

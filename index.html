@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="uk">
   <head>
     <meta charset="UTF-8" />
@@ -82,27 +82,25 @@
     </header>
 
     <div id="cartModal" class="modal-backdrop" aria-hidden="true">
-  <div class="cart-modal">
-    <button
-      class="modal-close"
-      id="cartCloseBtn"
-      type="button"
-      aria-label="Закрити"
-    >
-      &times;
-    </button>
+      <div class="cart-modal">
+        <button
+          class="modal-close"
+          id="cartCloseBtn"
+          type="button"
+          aria-label="Закрити"
+        >
+          &times;
+        </button>
 
-    <div class="cart-modal-header">
-      <h2>Мій кошик</h2>
+        <div class="cart-modal-header">
+          <h2>Мій кошик</h2>
 
-      <button id="clearCartBtn" type="button">
-        Очистити кошик
-      </button>
+          <button id="clearCartBtn" type="button">Очистити кошик</button>
+        </div>
+
+        <div id="cartList" class="cart-list"></div>
+      </div>
     </div>
-
-    <div id="cartList" class="cart-list"></div>
-  </div>
-</div>
 
     <main id="home" class="container">
       <div id="root"></div>
@@ -311,7 +309,7 @@
         </div>
 
         <div class="footer-form-wrapper">
-          <form action="/submit-feedback" method="POST" class="feedback-form">
+          <form id="feedbackForm" class="feedback-form">
             <h4>Залишити відгук</h4>
 
             <input
@@ -331,6 +329,8 @@
             ></textarea>
 
             <button type="submit" class="footer-button">Надіслати</button>
+
+            <p id="feedbackStatus" class="feedback-status"></p>
           </form>
         </div>
       </div>
