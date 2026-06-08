@@ -2,7 +2,7 @@ const SEARCH_TERM_INITIAL = "best sellers";
 
 let allBooksData = [];
 let currentPage = 1;
-const booksPerPage = 6;
+const booksPerPage = 8;
 
 let currentDisplayList = [];
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
