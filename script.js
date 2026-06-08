@@ -33,7 +33,17 @@ async function fetchBooks(query) {
 
   const rootElem = document.getElementById("root");
   rootElem.innerHTML =
-    '<h3 style="color: var(--color-text-primary); text-align: center; grid-column: 1 / -1;">Завантаження книг...</h3>';
+    rootElem.innerHTML = `
+  <div class="loader-wrapper">
+    <div class="book-loader">
+      <div class="book-page"></div>
+      <div class="book-page"></div>
+      <div class="book-page"></div>
+    </div>
+
+    <p class="loader-text">Завантажуємо книги з Open Library...</p>
+  </div>
+`;
 
   try {
     const response = await fetch(API_URL);
